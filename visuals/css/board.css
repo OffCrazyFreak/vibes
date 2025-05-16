@@ -30,8 +30,6 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-
-  transition: background-color 0.3s ease-in-out;
 }
 
 .cell.player1 {
