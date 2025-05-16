@@ -3,12 +3,26 @@ const WebSocket = require("ws");
 // Configuration
 const CONFIG = {
   defaultId: "k",
-  validDirections: ["up", "down", "left", "right"],
-  wsUrl: "ws://localhost:3000"
+  wsUrl: "ws://localhost:3000",
+  gridRows: 50,
+  gridCols: 100,
+  cellsPerTurn: 30,
 };
 
 // Get the agentId from command line or use default
 const agentId = process.argv[2] || CONFIG.defaultId;
+
+// Function to generate random positions
+function generateRandomPlacements() {
+  const placements = [];
+  for (let i = 0; i < CONFIG.cellsPerTurn; i++) {
+    placements.push({
+      row: Math.floor(Math.random() * CONFIG.gridRows),
+      column: Math.floor(Math.random() * CONFIG.gridCols),
+    });
+  }
+  return placements;
+}
 
 // Connect to WebSocket server
 const ws = new WebSocket(`${CONFIG.wsUrl}?id=${agentId}`);
@@ -23,10 +37,13 @@ ws.on("message", (data) => {
 
   // Only make a move if the game isn't over
   if (gameState.winner === null || gameState.winner === undefined) {
-    // Make a random move
+    // Generate random positions for this turn
+    const placements = generateRandomPlacements();
+
+    // Create the move object
     const move = {
       playerId: agentId,
-      direction: CONFIG.validDirections[Math.floor(Math.random() * CONFIG.validDirections.length)]
+      placements: placements,
     };
 
     // Send the move

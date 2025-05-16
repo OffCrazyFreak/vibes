@@ -185,21 +185,21 @@ function handleMessage(ws, message) {
     return;
   }
 
-  // 2. Check if direction is missing (but playerId is valid)
-  if (!move.direction) {
+  // 2. Check if placements is missing (but playerId is valid)
+  if (!move.placements) {
     console.log(
-      `Received move with missing direction from ${move.playerId}. Setting direction to 'invalid'.`
+      `Received move with missing placements from ${move.playerId}. Setting placements to 'invalid'.`
     );
     ws.send(
       JSON.stringify({
-        warning: "Missing direction in move. Treating as invalid.",
+        warning: "Missing placements in move. Treating as invalid.",
       })
     );
-    // Set direction to invalid so game logic can handle it (e.g., apply penalty)
-    move.direction = "invalid";
+    // Set placements to invalid so game logic can handle it (e.g., apply penalty)
+    move.placements = "invalid";
   }
 
-  // Store the move (it's either valid or has direction set to 'invalid')
+  // Store the move (it's either valid or has placements set to 'invalid')
   pendingMoves.set(move.playerId, move);
 
   // Clear existing timeout if any
@@ -207,7 +207,9 @@ function handleMessage(ws, message) {
 
   // Process moves function
   const processPendingMoves = () => {
-    game.processMoves(Array.from(pendingMoves.values()));
+    console.log("Processing pending moves: " + pendingMoves[0]);
+    console.log("Processing pending moves: " + pendingMoves[1]);
+    // game.processMoves(Array.from(pendingMoves.values()));
     pendingMoves.clear();
 
     // Send game state to all connections
@@ -243,7 +245,7 @@ function handleMessage(ws, message) {
           if (!pendingMoves.has(player.id)) {
             pendingMoves.set(player.id, {
               playerId: player.id,
-              direction: "timeout",
+              placements: "timeout",
             });
           }
         });

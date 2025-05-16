@@ -4,9 +4,18 @@ let socket; // WebSocket instance
 let socketConnectingInterval; // Interval for reconnection attempts
 let isConnectingOrConnected = false; // Connection state tracker
 
-let moveCount = -1;
+let generationCount = -1;
 let dataList = [];
 let lastFrameTime = Date.now();
+
+// fetch data from ../gamestate.json into dataList
+fetch("../gamestate.json")
+  .then((response) => response.json())
+  .then((data) => {
+    dataList = data;
+    console.log("Data loaded:", dataList);
+    parseData(dataList);
+  });
 
 // ========================================
 // websockets
@@ -28,11 +37,11 @@ function connectWebSocket() {
     setConnectionStatus("connected");
 
     // reset frontend
-    moveCount = -1; // Reset move counter
+    generationCount = -1; // Reset move counter
     dataList = [];
     lastFrameTime = Date.now();
 
-    updateMoveCount(moveCount); // Update UI with the reset move counter
+    updateMoveCount(generationCount); // Update UI with the reset move counter
     toggleEndScreen(null); // Hide the winner upon reconnection
 
     if (socketConnectingInterval) {
@@ -109,9 +118,9 @@ function toggleEndScreen(data) {
   }
 }
 
-function updateMoveCount(moveCount) {
-  document.querySelector(".move_number").textContent =
-    "Move: " + (moveCount || "####");
+function updateMoveCount(generationCount) {
+  document.querySelector(".generation_number").textContent =
+    "Generation: " + (generationCount || "####");
 }
 
 function setConnectionStatus(status) {
@@ -159,14 +168,14 @@ function gameLoop() {
 }
 
 // Start the game loop
-requestAnimationFrame(gameLoop);
+// requestAnimationFrame(gameLoop);
 
 function parseData(data) {
   console.log("Processing game state:", data);
 
   // Update move counter
-  moveCount = data.moveCount || moveCount;
-  updateMoveCount(moveCount);
+  generationCount = data.generationCount || generationCount;
+  updateMoveCount(generationCount);
 
   // Update team info
   const teamInfoContainerElems = document.querySelectorAll(".team_info");
@@ -174,41 +183,15 @@ function parseData(data) {
     // Reset team info if no players are present
     teamInfoContainerElems.forEach((elem) => {
       elem.querySelector(".team_name").textContent = "Team ####";
-      elem.querySelector(".team_length").textContent = "Length: ####";
-      elem.querySelector(".team_score").textContent = "Score: ####";
-
-      elem.querySelectorAll(".item").forEach((itemElem) => {
-        itemElem.style.filter = "grayscale(100%)";
-      });
+      elem.querySelector(".team_cells").textContent = "Cells: ####";
     });
   } else {
     data.players.forEach((player, index) => {
       teamInfoContainerElems[index].querySelector(".team_name").textContent =
         player.name;
 
-      teamInfoContainerElems[index].querySelector(".team_length").textContent =
-        "Length: " + player.body.length;
-
-      teamInfoContainerElems[index].querySelector(".team_score").textContent =
-        "Score: " + player.score;
-
-      teamInfoContainerElems[index]
-        .querySelectorAll(".item")
-        .forEach((elem) => {
-          elem.style.filter = "grayscale(100%)";
-        });
-
-      player.activeItems.forEach((item) => {
-        // find element with data-value = item.type
-        const itemElem = teamInfoContainerElems[index].querySelector(
-          `[data-value="${item.type}"]`
-        );
-
-        // if itemElem is not present, skip
-        if (!itemElem) return;
-
-        itemElem.style.filter = "none";
-      });
+      teamInfoContainerElems[index].querySelector(".team_cells").textContent =
+        "Cells: " + player.body.length;
     });
   }
 
