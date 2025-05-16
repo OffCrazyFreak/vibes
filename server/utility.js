@@ -3,14 +3,10 @@ function serializeGameState(game) {
     map: game.board.map,
     players: game.players.map((player) => ({
       name: player.name,
-      score: player.score,
-      body: player.body,
-      activeItems: player.activeItems,
-      lastMoveDirection: player.lastMoveDirection,
-      nextMoveDirection: player.nextMoveDirection,
+      cells: player.cells,
     })),
     winner: game.winner,
-    moveCount: game.moveCount,
+    generationCount: game.generationCount,
   };
 }
 

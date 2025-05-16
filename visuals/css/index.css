@@ -5,6 +5,11 @@
   margin: 0;
 }
 
+:root {
+  --player1-color: hsl(29, 100%, 50%);
+  --player2-color: hsl(202, 100%, 50%);
+}
+
 html {
   scroll-behavior: smooth;
 
@@ -147,42 +152,16 @@ body {
 }
 
 .left_container .team_name::after {
-  background-color: var(--snake-player1-color);
+  background-color: var(--player1-color);
 }
 
 .right_container .team_name::before {
-  background-color: var(--snake-player2-color);
+  background-color: var(--player2-color);
 }
 
-.left_container .items {
-  flex-direction: row; /* default */
-}
-
-.right_container .items {
-  flex-direction: row-reverse; /* reverse */
-}
-
-.team_score,
-.team_length,
-.items {
+.team_cells {
   font-size: clamp(0.75rem, 1.5vw, 4rem);
   font-weight: bold;
-}
-
-.items {
-  min-height: clamp(1rem, 1.875vw, 4.25rem);
-  margin: 0.25em;
-
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75em;
-}
-
-.items .item {
-  height: clamp(1rem, 3vw, 3rem);
-  width: auto;
-
-  filter: grayscale(100%);
 }
 
 .debug-only {
@@ -223,10 +202,4 @@ button {
 
 button:hover {
   background-color: #45a049;
-}
-
-.board {
-  flex: 1;
-  display: grid;
-  place-items: center;
 }
