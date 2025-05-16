@@ -1,11 +1,5 @@
 # GOOD VIBES ONLY
 
-## Project Structure
-
-vibes/
-├── backend/ # Spring Boot backend
-└── frontend-react/ # React frontend
-
 ## Backend Setup
 
 The backend is a Spring Boot application using:
@@ -62,42 +56,6 @@ npm start
 ```
 
 The frontend development server will start on http://localhost:3000 and will automatically open in your default browser.
-
-## Development
-
-### Backend Development
-
-- The backend uses Spring Boot with RESTful endpoints
-- Main entities include Project, Category, and User models
-- API endpoints are available through ProjectController
-
-### Frontend Development
-
-- Built with React
-- Uses modern React features with functional components
-- Includes web vitals for performance monitoring
-
-## Building for Production
-
-### Backend
-
-To build the backend for production:
-
-```bash
-cd backend
-
-./mvnw clean package
-```
-
-### Frontend
-
-To build the frontend for production:
-
-```bash
-cd frontend-react
-
-npm run build
-```
 
 This will create a production build in the build folder.
 
