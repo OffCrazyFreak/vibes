@@ -37,7 +37,7 @@ function connectWebSocket() {
     setConnectionStatus("connected");
 
     // reset frontend
-    generationCount = -1; // Reset move counter
+    generationCount = -1; // Reset generation counter
     dataList = [];
     lastFrameTime = Date.now();
 
