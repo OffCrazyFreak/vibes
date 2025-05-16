@@ -15,8 +15,11 @@ fetch("../gamestate.json")
     dataList = data;
     console.log("Data loaded:", dataList);
     parseData(dataList);
+  })
+  .catch((error) => {
+    console.error("Failed to load game state:", error);
+    setConnectionStatus("connection_fail");
   });
-
 // ========================================
 // websockets
 // ========================================
