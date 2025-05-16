@@ -27,6 +27,11 @@ class ConwayGame {
     
     // Track which cells belong to which player
     this.playerCells = {};
+    
+    // Track board states for stability detection
+    this.previousStates = [];
+    this.stableGenerationCount = 0;
+    this.STABILITY_THRESHOLD = 3; // Number of identical generations to consider stable
   }
   
   /**
@@ -36,6 +41,12 @@ class ConwayGame {
    * @param {string} playerData.name - Display name for the player
    */
   addPlayer(playerData) {
+    // Enforce exactly two players
+    if (this.players.length >= 2) {
+      console.log('Cannot add more players. Game is limited to exactly 2 players.');
+      return false;
+    }
+    
     const player = {
       id: playerData.id,
       name: playerData.name,
@@ -45,6 +56,7 @@ class ConwayGame {
     
     this.players.push(player);
     this.playerCells[player.id] = [];
+    return true;
   }
   
   /**
@@ -136,15 +148,25 @@ class ConwayGame {
         }
         // Rule 4: Any dead cell with exactly three live neighbors becomes a live cell (reproduction)
         else if (neighbors.total === 3) {
-          // Determine which player gets the new cell based on majority
+          // Determine which player gets the new cell based on majority or random on tie
           let newCellPlayerId = null;
           let maxCount = 0;
+          let tiedPlayers = [];
           
           for (const [playerId, count] of Object.entries(neighbors.byPlayer)) {
             if (count > maxCount) {
               maxCount = count;
               newCellPlayerId = playerId;
+              tiedPlayers = [playerId];
+            } else if (count === maxCount) {
+              tiedPlayers.push(playerId);
             }
+          }
+          
+          // If there's a tie, randomly select one of the tied players
+          if (tiedPlayers.length > 1) {
+            const randomIndex = Math.floor(Math.random() * tiedPlayers.length);
+            newCellPlayerId = tiedPlayers[randomIndex];
           }
           
           if (newCellPlayerId) {
@@ -244,8 +266,22 @@ class ConwayGame {
       return true;
     }
     
-    // Game is over if all cells are stable (no changes for multiple ticks)
-    // This would require tracking previous states, which is beyond the scope for now
+    // Check for board stability
+    const currentState = this.getBoardStateString();
+    if (this.previousStates.length > 0 && currentState === this.previousStates[this.previousStates.length - 1]) {
+      this.stableGenerationCount++;
+      if (this.stableGenerationCount >= this.STABILITY_THRESHOLD) {
+        console.log('Game Over! Board has stabilized.');
+        this.determineWinnerByCellCount();
+        return true;
+      }
+    } else {
+      this.stableGenerationCount = 0;
+    }
+    this.previousStates.push(currentState);
+    if (this.previousStates.length > this.STABILITY_THRESHOLD) {
+      this.previousStates.shift();
+    }
     
     // Game is over if move limit is reached
     if (this.moveCount >= config.GAME_MAX_MOVES) {
@@ -299,6 +335,20 @@ class ConwayGame {
    */
   getBoardState() {
     return this.board;
+  }
+
+  /**
+   * Creates a string representation of the current board state for stability comparison
+   * @returns {string} A string representing the current board state
+   * @private
+   */
+  getBoardStateString() {
+    return this.board.map(row =>
+      row.map(cell => {
+        if (!cell) return '0';
+        return cell.playerId;
+      }).join('')
+    ).join('|');
   }
   
   /**

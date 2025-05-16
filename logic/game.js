@@ -9,7 +9,11 @@ class ConwayGame {
     this.players = [];
     this.winner = null;
     this.currentPlayer = 0; // Track whose turn it is
+    this.generation = 0; // Track current generation
+    this.maxGenerations = 1000; // Game ends after 1000 generations
+    this.cellsPerTurn = 5; // Number of cells each player can place per turn
     this.board.updateMap();
+    console.log('Game initialized - Players can place', this.cellsPerTurn, 'cells per turn');
   }
 
   addPlayer(playerData) {
@@ -28,25 +32,56 @@ class ConwayGame {
   }
 
   processMoves(moves) {
+    // Group moves by player
+    const movesByPlayer = {};
     moves.forEach(move => {
-      const player = this.players.find(p => p.id === move.playerId);
-      if (!player) return;
-      
-      // Process cell placement
-      const cell = { row: move.row, column: move.column };
-      if (this.isValidCell(cell)) {
-        this.board.setCell(cell.row, cell.column, {
-          type: 'live',
-          playerName: player.name,
-          color: player.color
-        });
-        player.cells.add(`${cell.row},${cell.column}`);
+      if (!movesByPlayer[move.playerId]) {
+        movesByPlayer[move.playerId] = [];
       }
+      movesByPlayer[move.playerId].push(move);
+    });
+
+    // Process moves for each player, respecting cell placement limit
+    Object.entries(movesByPlayer).forEach(([playerId, playerMoves]) => {
+      const player = this.players.find(p => p.id === playerId);
+      if (!player) return;
+
+      console.log(`Processing moves for ${player.name}:`);
+      
+      // Only process up to the cell placement limit
+      const validMoves = playerMoves.slice(0, this.cellsPerTurn);
+      if (playerMoves.length > this.cellsPerTurn) {
+        console.log(`Warning: ${player.name} attempted to place ${playerMoves.length} cells, limit is ${this.cellsPerTurn}`);
+      }
+
+      validMoves.forEach(move => {
+        const cell = { row: move.row, column: move.column };
+        if (this.isValidCell(cell)) {
+          this.board.setCell(cell.row, cell.column, {
+            type: 'live',
+            playerName: player.name,
+            color: player.color
+          });
+          player.cells.add(`${cell.row},${cell.column}`);
+          console.log(`- Cell placed at (${cell.row}, ${cell.column})`);
+        } else {
+          console.log(`- Invalid cell placement attempted at (${cell.row}, ${cell.column})`);
+        }
+      });
     });
 
     // Apply Conway's rules and update the board
+    this.generation++;
+    console.log(`\nGeneration ${this.generation} of ${this.maxGenerations}:`);
+    
     this.evolveBoard();
     this.updateScores();
+    
+    // Log current scores
+    this.players.forEach(player => {
+      console.log(`${player.name}'s score: ${player.score} cells`);
+    });
+    
     this.checkGameOver();
     this.board.updateMap();
   }
@@ -148,10 +183,24 @@ class ConwayGame {
   }
 
   checkGameOver() {
-    // Game ends if one player has no living cells or after a certain number of moves
+    // Game ends if one player has no living cells or after max generations
     const deadPlayer = this.players.find(player => player.score === 0);
     if (deadPlayer) {
       this.winner = this.players.find(player => player.id !== deadPlayer.id).name;
+      console.log(`\nGame Over! ${this.winner} wins - opponent has no living cells`);
+    } else if (this.generation >= this.maxGenerations) {
+      // Determine winner based on cell count after 1000 generations
+      const [player1, player2] = this.players;
+      if (player1.score > player2.score) {
+        this.winner = player1.name;
+      } else if (player2.score > player1.score) {
+        this.winner = player2.name;
+      } else {
+        this.winner = 'tie';
+      }
+      console.log(`\nGame Over! After ${this.maxGenerations} generations:`);
+      console.log(`Final scores: ${player1.name}: ${player1.score}, ${player2.name}: ${player2.score}`);
+      console.log(`Winner: ${this.winner === 'tie' ? "It's a tie!" : this.winner}`);
     }
   }
 
