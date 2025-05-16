@@ -15,11 +15,17 @@ const agentId = process.argv[2] || CONFIG.defaultId;
 // Function to generate random positions
 function generateRandomPlacements() {
   const placements = [];
-  for (let i = 0; i < CONFIG.cellsPerTurn; i++) {
-    placements.push({
+  while (placements.length < CONFIG.cellsPerTurn) {
+    const position = {
       row: Math.floor(Math.random() * CONFIG.gridRows),
       column: Math.floor(Math.random() * CONFIG.gridCols),
-    });
+    };
+    const isOccupied = gameState.players.some(player =>
+      player.cells.some(cell => cell.row === position.row && cell.column === position.column)
+    );
+    if (!isOccupied) {
+      placements.push(position);
+    }
   }
   return placements;
 }

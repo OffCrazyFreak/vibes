@@ -44,7 +44,6 @@ class ConwayGame {
     // Enforce exactly two players
     if (this.players.length >= 2) {
       throw new Error('Cannot add more players. Game is limited to exactly 2 players.');
-      return false;
     }
     
     const player = {
