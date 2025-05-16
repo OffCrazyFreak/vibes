@@ -1,169 +1,171 @@
-const config = require("./gameConfig");
-const Player = require("./player");
-const Board = require("./board");
-const Spawner = require("./spawner");
-const CollisionHandler = require("./collisionHandler");
+const config = require('./gameConfig');
+const Board = require('./board');
 
-/**
- * Main game class that handles the snake game logic
- */
-class SnakeGame {
-  /**
-   * Creates a new SnakeGame instance and initializes game components
-   */
+class ConwayGame {
   constructor() {
     this.numOfRows = config.BOARD_NUM_OF_ROWS;
     this.numOfColumns = config.BOARD_NUM_OF_COLUMNS;
-
     this.board = new Board(this);
-
-    this.moveCount = 0;
-
     this.players = [];
     this.winner = null;
-
-    this.items = [];
-
-    this.spawner = new Spawner(this);
-    this.collisionHandler = new CollisionHandler(this);
-
+    this.currentPlayer = 0; // Track whose turn it is
     this.board.updateMap();
   }
 
-  /**
-   * Adds a new player to the game
-   * @param {Object} playerData - Data for the new player
-   * @param {string} playerData.id - Unique identifier for the player
-   * @param {string} playerData.name - Display name for the player
-   */
   addPlayer(playerData) {
-    const player = new Player(this, playerData);
+    if (this.players.length >= 2) {
+      throw new Error('Maximum number of players reached');
+    }
+    const player = {
+      id: playerData.id,
+      name: playerData.name,
+      color: this.players.length === 0 ? 'blue' : 'red',
+      score: 0,
+      cells: new Set() // Track cells owned by this player
+    };
     this.players.push(player);
-
     this.board.updateMap();
   }
 
-  /**
-   * Processes a batch of moves from all players
-   * @param {Array<Object>} moves - Array of move objects
-   * @param {string} moves[].playerId - ID of the player making the move
-   * @param {string} moves[].direction - Direction of the move ('up', 'down', 'left', 'right')
-   */
   processMoves(moves) {
-    this.moveCount++;
-
-    // Process all moves
-    moves.forEach((move) => {
-      const player = this.players.find((p) => p.id === move.playerId);
-      player.playMove(move.direction);
+    moves.forEach(move => {
+      const player = this.players.find(p => p.id === move.playerId);
+      if (!player) return;
+      
+      // Process cell placement
+      const cell = { row: move.row, column: move.column };
+      if (this.isValidCell(cell)) {
+        this.board.setCell(cell.row, cell.column, {
+          type: 'live',
+          playerName: player.name,
+          color: player.color
+        });
+        player.cells.add(`${cell.row},${cell.column}`);
+      }
     });
 
-    // process players items
-    this.processPlayersItems();
-
-    // filter all items with "hasCollided" property set to true,
-    // solves bug where only one player would get the reward (and length)
-    this.items = this.items.filter((item) => item.hasCollided !== true);
-
-    // Handle map shrinking
-    const currentBoardWidth = this.board.getCurrentBoardWidth();
-    if (
-      currentBoardWidth > config.MINIMUM_BOARD_SIZE &&
-      this.moveCount >= config.START_SHRINKING_MAP_AFTER_MOVES &&
-      this.moveCount % config.SHRINK_MAP_MOVE_INTERVAL === 0
-    ) {
-      this.board.shrinkMap();
-    }
-
-    // Check if game is over and determine winner
+    // Apply Conway's rules and update the board
+    this.evolveBoard();
+    this.updateScores();
     this.checkGameOver();
-    if (this.winner !== null) {
-      return;
-    }
-
-    // Spawn apples every 5 moves
-    if (this.moveCount % 5 === 0) {
-      this.spawner.spawnMirroredApples();
-    }
-
-    // Spawn items based on a chance
-    if (Math.random() < config.MODIFIER_SPAWN_CHANCE) {
-      this.spawner.spawnMirroredItems();
-    }
-
-    // update map game state
     this.board.updateMap();
   }
 
-  /**
-   * Checks if the game is over based on player deaths or move limit
-   * @returns {boolean} True if game is over, false otherwise
-   */
-  checkGameOver() {
-    const deadPlayers = this.players
-      .filter(
-        (player) =>
-          this.collisionHandler.checkForWallCollision(player) ||
-          this.collisionHandler.checkForPlayerCollision(player) ||
-          player.score <= 0
-      )
-      .map((player) => player.id);
+  evolveBoard() {
+    const newBoard = Array(this.numOfRows).fill(null)
+      .map(() => Array(this.numOfColumns).fill(null));
 
-    if (deadPlayers.length > 0) {
-      if (deadPlayers.length === 1) {
-        this.winner = this.players.find((p) => p.id !== deadPlayers[0]).name;
-        console.log(`Game Over! Player ${this.winner} wins!`);
-      } else {
-        this.determineWinnerByScoreThenLength();
+    for (let row = 0; row < this.numOfRows; row++) {
+      for (let col = 0; col < this.numOfColumns; col++) {
+        const neighbors = this.countNeighbors(row, col);
+        const currentCell = this.board.getCell(row, col);
+        
+        if (currentCell && currentCell.type === 'live') {
+          // Survival rules
+          if (neighbors.total === 2 || neighbors.total === 3) {
+            newBoard[row][col] = {
+              type: 'live',
+              playerName: currentCell.playerName,
+              color: currentCell.color
+            };
+          }
+        } else {
+          // Birth rules
+          if (neighbors.total === 3) {
+            // Determine cell ownership based on majority
+            const dominantPlayer = this.getDominantPlayer(neighbors);
+            if (dominantPlayer) {
+              newBoard[row][col] = {
+                type: 'live',
+                playerName: dominantPlayer.name,
+                color: dominantPlayer.color
+              };
+            }
+          }
+        }
       }
     }
 
-    // Check for move limit only if no players died
-    if (this.moveCount >= config.GAME_MAX_MOVES) {
-      console.log("Maximum number of game moves exceeded.");
-      this.determineWinnerByScoreThenLength();
-    }
+    // Update the board state
+    this.board.map = newBoard;
   }
 
-  /**
-   * Determines the winner based on score and snake length when game ends in a tie
-   * Sets the winner property to the winning player's name or -1 for a draw
-   */
-  determineWinnerByScoreThenLength() {
-    const [player1, player2] = this.players;
+  countNeighbors(row, col) {
+    const neighbors = {
+      total: 0,
+      [this.players[0].name]: 0,
+      [this.players[1].name]: 0
+    };
 
-    if (player1.score !== player2.score) {
-      this.winner = player1.score > player2.score ? player1.name : player2.name;
-      console.log(`Game Over! Player ${this.winner} wins by higher score!`);
-    } else if (player1.body.length !== player2.body.length) {
-      this.winner =
-        player1.body.length > player2.body.length ? player1.name : player2.name;
-      console.log(`Game Over! Player ${this.winner} wins by longer length!`);
-    } else {
-      this.winner = -1;
-      console.log(`Game Over! Draw! Equal scores and lengths`);
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0) continue;
+
+        const newRow = row + i;
+        const newCol = col + j;
+
+        if (this.isValidPosition(newRow, newCol)) {
+          const cell = this.board.getCell(newRow, newCol);
+          if (cell && cell.type === 'live') {
+            neighbors.total++;
+            neighbors[cell.playerName]++;
+          }
+        }
+      }
     }
+
+    return neighbors;
   }
 
-  /**
-   * Processes all active items, reducing their duration and handling expiration effects
-   */
-  processPlayersItems() {
-    this.players.forEach((player) => {
-      player.activeItems.forEach((activeItem) => {
-        activeItem.duration -= 1;
+  getDominantPlayer(neighbors) {
+    if (neighbors[this.players[0].name] > neighbors[this.players[1].name]) {
+      return this.players[0];
+    } else if (neighbors[this.players[1].name] > neighbors[this.players[0].name]) {
+      return this.players[1];
+    }
+    return null; // No dominant player
+  }
 
-        activeItem.do(player, this);
-      });
-
-      // removes items with duration <= 0
-      player.activeItems = player.activeItems.filter(
-        (activeItem) => activeItem.duration > 0
-      );
+  updateScores() {
+    // Reset scores and recalculate based on current board state
+    this.players.forEach(player => {
+      player.score = 0;
+      player.cells.clear();
     });
+
+    for (let row = 0; row < this.numOfRows; row++) {
+      for (let col = 0; col < this.numOfColumns; col++) {
+        const cell = this.board.getCell(row, col);
+        if (cell && cell.type === 'live') {
+          const player = this.players.find(p => p.name === cell.playerName);
+          if (player) {
+            player.score++;
+            player.cells.add(`${row},${col}`);
+          }
+        }
+      }
+    }
+  }
+
+  checkGameOver() {
+    // Game ends if one player has no living cells or after a certain number of moves
+    const deadPlayer = this.players.find(player => player.score === 0);
+    if (deadPlayer) {
+      this.winner = this.players.find(player => player.id !== deadPlayer.id).name;
+    }
+  }
+
+  isValidCell(cell) {
+    return this.isValidPosition(cell.row, cell.column) &&
+           !this.board.getCell(cell.row, cell.column);
+  }
+
+  isValidPosition(row, col) {
+    return row >= 0 && row < this.numOfRows &&
+           col >= 0 && col < this.numOfColumns;
   }
 }
 
 module.exports = {
-  SnakeGame,
+  ConwayGame
 };
