@@ -15,8 +15,11 @@ fetch("../gamestate.json")
     dataList = data;
     console.log("Data loaded:", dataList);
     parseData(dataList);
+  })
+  .catch((error) => {
+    console.error("Failed to load game state:", error);
+    setConnectionStatus("connection_fail");
   });
-
 // ========================================
 // websockets
 /**
@@ -43,11 +46,11 @@ function connectWebSocket() {
     setConnectionStatus("connected");
 
     // reset frontend
-    generationCount = -1; // Reset move counter
+    generationCount = -1; // Reset generation counter
     dataList = [];
     lastFrameTime = Date.now();
 
-    updateMoveCount(generationCount); // Update UI with the reset move counter
+    updateGenerationCount(generationCount); // Update UI with the reset move counter
     toggleEndScreen(null); // Hide the winner upon reconnection
 
     if (socketConnectingInterval) {
@@ -137,9 +140,10 @@ function toggleEndScreen(data) {
  *
  * @param {number} generationCount - The current generation number to display.
  */
-function updateMoveCount(generationCount) {
-  document.querySelector(".generation_number").textContent =
-    "Generation: " + (generationCount || "####");
+function updateGenerationCount(generationCount) {
+  document.querySelector(".generation_number").textContent = `Generation: ${
+    generationCount || "####"
+  }`;
 }
 
 /**

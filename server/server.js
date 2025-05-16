@@ -215,11 +215,13 @@ function handleMessage(ws, message) {
 
   // Process moves function
   const processPendingMoves = () => {
-    console.log("Processing pending moves: " + pendingMoves[0]);
-    console.log("Processing pending moves: " + pendingMoves[1]);
+    console.log(
+      `Processing pending moves: ${JSON.stringify(
+        Array.from(pendingMoves.values())
+      )}`
+    );
     // game.processMoves(Array.from(pendingMoves.values()));
     pendingMoves.clear();
-
     // Send game state to all connections
     connections.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

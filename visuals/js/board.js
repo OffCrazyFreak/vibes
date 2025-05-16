@@ -76,8 +76,8 @@ function updateGrid(data) {
   if (data.winner) {
     if (data.winner === -1) {
       // draw - grayscale all cells
-      const allcellsCells = document.querySelectorAll(".cell");
-      allcellsCells.forEach((cell) => {
+      const allCells = document.querySelectorAll(".cell");
+      allCells.forEach((cell) => {
         cell.style.filter = "grayscale(100%)";
       });
     } else {
@@ -91,10 +91,10 @@ function updateGrid(data) {
         (player) => player.name === losingPlayer.name
       );
 
-      const losinCells = document.querySelectorAll(
+      const losingCells = document.querySelectorAll(
         `.player${losingPlayerIndex + 1}`
       );
-      losinCells.forEach((cell) => {
+      losingCells.forEach((cell) => {
         cell.style.filter = "grayscale(100%)";
       });
     }
