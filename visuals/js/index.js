@@ -118,7 +118,7 @@ function toggleEndScreen(data) {
   }
 }
 
-function updateMoveCount(generationCount) {
+function updateGenerationCount(generationCount) {
   document.querySelector(".generation_number").textContent =
     `Generation: ${generationCount || "####"}`;
 }
