@@ -1,20 +1,20 @@
 # GOOD VIBES ONLY
 
-## Backend Setup
+## Backend
 
-The backend is a Spring Boot application using:
+The backend is a Spring Boot application using:
 
-- Java
-- Spring Boot
-- JPA/Hibernate
-- PostgreSQL (assumed based on JPA usage)
+- Java
+- Spring Boot
+- JPA/Hibernate
+- PostgreSQL (assumed based on JPA usage)
 
-### Running the Backend
+### Running the Backend
 
-1. Navigate to the backend directory:
+1. Navigate to the backend directory:
 
 ```bash
-cd backend
+cd backend
 ```
 
 2. Build the project using Maven:
@@ -31,7 +31,7 @@ cd backend
 
 The backend server will start on http://localhost:8080 by default.
 
-## Frontend Setup
+## Frontend
 
 The frontend is a React application created with Create React App.
 
