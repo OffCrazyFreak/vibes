@@ -179,7 +179,7 @@ function parseData(data) {
 
   // Update move counter
   generationCount = data.generationCount || generationCount;
-  updateMoveCount(generationCount);
+  updateGenerationCount(generationCount);
 
   // Update team info
   const teamInfoContainerElems = document.querySelectorAll(".team_info");
