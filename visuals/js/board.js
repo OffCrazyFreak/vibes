@@ -45,10 +45,11 @@ function updateGrid(data) {
 
         const cell = document.getElementById(`cell-${i}-${j}`);
         cell.classList.remove("Uno", "Duo");
+
         if (data.map[i][j] !== null) {
-          if (data.map[i][j] === "Uno") {
+          if (data.map[i][j].playerName === "Uno") {
             cell.classList.add("player1");
-          } else if (data.map[i][j] === "Duo") {
+          } else if (data.map[i][j].playerName === "Duo") {
             cell.classList.add("player2");
           } else {
             cell.classList.add("unknown");

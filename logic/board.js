@@ -128,36 +128,18 @@ class Board {
       )
     );
 
-    // Update items
-    if (this.game.items) {
-      this.game.items.forEach((item) => {
-        // this.setCell(item.row, item.column, item);
-
-        this.setCell(item.row, item.column, {
-          row: item.row,
-          column: item.column,
-          type: item.type || "unknown",
-          affect: item.affect,
-          pickUpReward: item.pickUpReward,
-          duration: item.duration,
-          spawnWeight: item.spawnWeight,
-          symbol: item.symbol || "?",
-        });
-      });
-    }
-
     // Update players
     if (this.game.players) {
       this.game.players.forEach((player) => {
         // Draw snake segments from tail to head
-        for (let i = player.body.length - 1; i >= 0; i--) {
-          const snakeSegment = player.body[i];
-          if (!this.isValidPosition(snakeSegment)) {
+        for (let i = player.cells.length - 1; i >= 0; i--) {
+          const cell = player.cells[i];
+          if (!this.isValidPosition(cell)) {
             break;
           }
 
-          this.setCell(snakeSegment.row, snakeSegment.column, {
-            type: i === 0 ? "snake-head" : "snake-body",
+          this.setCell(cell.row, cell.column, {
+            type: "alive",
             playerName: player.name,
           });
         }
