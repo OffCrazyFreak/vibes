@@ -1,6 +1,6 @@
 // Game configuration constants
 // Maximum number of moves before forcing game end. Will be set to ~1000 in production.
-const GAME_MAX_MOVES = 200;
+const GAME_MAX_MOVES = 100;
 // Number of rows in the game grid (MUST BE AN ODD NUMBER). Will be set to ~25 in production.
 const BOARD_NUM_OF_ROWS = 25;
 // Number of columns in the game grid. Will be set to ~60 in production.

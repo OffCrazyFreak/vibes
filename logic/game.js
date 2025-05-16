@@ -232,7 +232,6 @@ class ConwayGame {
     }
 
     // Game is over if move limit is reached
-    console.log(config.GAME_MAX_MOVES);
     if (this.generationCount >= config.GAME_MAX_MOVES) {
       this.determineWinnerByCellCount();
       return true;
