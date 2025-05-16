@@ -3,6 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
   createGrid(50, 100);
 });
 
+/**
+ * Initializes the game board grid with the specified number of rows and columns.
+ *
+ * Replaces any existing grid inside the element with id "gameBoard" and creates a new grid layout using CSS grid, where each cell is a div with a unique id in the format "cell-{row}-{col}".
+ *
+ * @param {number} [rows=150] - Number of rows to create in the grid.
+ * @param {number} [cols=350] - Number of columns to create in the grid.
+ */
 function createGrid(rows = 150, cols = 350) {
   const board = document.getElementById("gameBoard");
   board.style.gridTemplateColumns = `repeat(${cols}, 0.375rem)`;
@@ -18,6 +26,13 @@ function createGrid(rows = 150, cols = 350) {
   }
 }
 
+/**
+ * Updates the visual state of the game board grid based on the provided game data.
+ *
+ * If the grid dimensions differ from the data, the grid is recreated. Each cell is updated to reflect player positions or unknown states. When a winner is present, the grid applies a grayscale effect to indicate a draw or highlight the losing player's cells.
+ *
+ * @param {Object} data - Game state data containing a `map` array and optional `winner` and `players` information.
+ */
 function updateGrid(data) {
   if (!data.map || !Array.isArray(data.map) || data.map.length === 0) {
     console.error("Invalid map data");

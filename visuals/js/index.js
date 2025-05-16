@@ -19,7 +19,13 @@ fetch("../gamestate.json")
 
 // ========================================
 // websockets
-// ========================================
+/**
+ * Establishes and manages a WebSocket connection to receive real-time game updates.
+ *
+ * Handles connection state, automatic reconnection on failure, and updates UI elements to reflect connection status and game state. Incoming messages are parsed and appended to the game data queue.
+ *
+ * @remark Prevents multiple simultaneous connection attempts and automatically retries connection every 500ms if disconnected.
+ */
 
 function connectWebSocket() {
   // Prevent multiple connections
@@ -86,7 +92,13 @@ connectWebSocket();
 
 // ========================================
 // utility
-// ========================================
+/**
+ * Shows or hides the end screen displaying the game winner or a draw.
+ *
+ * If {@link data} is provided, displays the winner's name or "GAME DRAW" for a draw, and fades in the winner container. If {@link data} is null, fades out and hides the winner container.
+ *
+ * @param {Object|null} data - Game result data containing a `winner` property, or null to hide the end screen.
+ */
 
 function toggleEndScreen(data) {
   const winnerContainer = document.querySelector(".winner_container");
@@ -118,11 +130,25 @@ function toggleEndScreen(data) {
   }
 }
 
+/**
+ * Updates the displayed generation count in the UI.
+ *
+ * If {@link generationCount} is falsy, displays a placeholder instead.
+ *
+ * @param {number} generationCount - The current generation number to display.
+ */
 function updateMoveCount(generationCount) {
   document.querySelector(".generation_number").textContent =
     "Generation: " + (generationCount || "####");
 }
 
+/**
+ * Updates the UI to reflect the current WebSocket connection status.
+ *
+ * Adjusts the text and CSS classes of the connection status element based on the provided status value.
+ *
+ * @param {string} status - The current connection status ("connection_fail", "connected", or "connecting").
+ */
 function setConnectionStatus(status) {
   const connectionStatus = document.querySelector(".connection_status");
   if (!connectionStatus) return;
@@ -147,7 +173,11 @@ function setConnectionStatus(status) {
 
 // ========================================
 // game logic
-// ========================================
+/**
+ * Processes and displays the next game state update at a fixed tick rate.
+ *
+ * Uses `requestAnimationFrame` to schedule updates, advancing the game state by parsing the next item in {@link dataList} if enough time has elapsed since the last update.
+ */
 
 function gameLoop() {
   let now = Date.now();
@@ -168,7 +198,13 @@ function gameLoop() {
 }
 
 // Start the game loop
-// requestAnimationFrame(gameLoop);
+/**
+ * Updates the UI and game state based on the provided game data.
+ *
+ * Updates the generation counter, team information, and game board display. If a winner is present in the data, displays the end screen.
+ *
+ * @param {Object} data - The current game state, including generation count, player information, and winner status.
+ */
 
 function parseData(data) {
   console.log("Processing game state:", data);

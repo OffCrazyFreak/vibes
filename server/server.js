@@ -158,6 +158,14 @@ function rejectConnection(ws, receivedId) {
   ws.close();
 }
 
+/**
+ * Handles an incoming WebSocket message representing a player's move.
+ *
+ * Validates the move, ensures the player is connected, and manages move collection for both players. If both moves are received or a timeout occurs, processes the moves and broadcasts the updated game state to all clients. Handles missing or invalid move data by marking placements as "invalid" or "timeout" as appropriate.
+ *
+ * @param {WebSocket} ws - The WebSocket connection from which the message was received.
+ * @param {string} message - The raw message data sent by the client.
+ */
 function handleMessage(ws, message) {
   console.log(`Received message: ${message}`);
 

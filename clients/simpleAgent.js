@@ -12,7 +12,11 @@ const CONFIG = {
 // Get the agentId from command line or use default
 const agentId = process.argv[2] || CONFIG.defaultId;
 
-// Function to generate random positions
+/**
+ * Generates an array of random cell positions within the configured grid dimensions.
+ *
+ * @returns {Array<{row: number, column: number}>} An array of cell placement objects, each with random {@link row} and {@link column} values.
+ */
 function generateRandomPlacements() {
   const placements = [];
   for (let i = 0; i < CONFIG.cellsPerTurn; i++) {
