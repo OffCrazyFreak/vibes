@@ -14,6 +14,7 @@ class ConwayGame {
     this.cellsPerTurn = 5; // Number of cells each player can place per turn
     this.board.updateMap();
     console.log('Game initialized - Players can place', this.cellsPerTurn, 'cells per turn');
+    this.startingCells = config.STARTING_CELLS || 50;
   }
 
   addPlayer(playerData) {
@@ -41,13 +42,14 @@ class ConwayGame {
       movesByPlayer[move.playerId].push(move);
     });
 
-    // Process moves for each player, respecting cell placement limit
-    Object.entries(movesByPlayer).forEach(([playerId, playerMoves]) => {
-      const player = this.players.find(p => p.id === playerId);
-      if (!player) return;
+    // Determine the order of processing based on the current turn
+    const playerOrder = this.generation % 2 === 0 ? this.players : [...this.players].reverse();
 
+    // Process moves for each player, respecting cell placement limit
+    playerOrder.forEach(player => {
+      const playerMoves = movesByPlayer[player.id] || [];
       console.log(`Processing moves for ${player.name}:`);
-      
+
       // Only process up to the cell placement limit
       const validMoves = playerMoves.slice(0, this.cellsPerTurn);
       if (playerMoves.length > this.cellsPerTurn) {
@@ -70,18 +72,21 @@ class ConwayGame {
       });
     });
 
+    // Update the current player
+    this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
+
     // Apply Conway's rules and update the board
     this.generation++;
     console.log(`\nGeneration ${this.generation} of ${this.maxGenerations}:`);
-    
+
     this.evolveBoard();
     this.updateScores();
-    
+
     // Log current scores
     this.players.forEach(player => {
       console.log(`${player.name}'s score: ${player.score} cells`);
     });
-    
+
     this.checkGameOver();
     this.board.updateMap();
   }
@@ -128,9 +133,13 @@ class ConwayGame {
   countNeighbors(row, col) {
     const neighbors = {
       total: 0,
-      [this.players[0].name]: 0,
-      [this.players[1].name]: 0
+      byPlayer: {}
     };
+
+    // Initialize player counts
+    this.players.forEach(player => {
+      neighbors.byPlayer[player.name] = 0;
+    });
 
     for (let i = -1; i <= 1; i++) {
       for (let j = -1; j <= 1; j++) {
@@ -143,7 +152,7 @@ class ConwayGame {
           const cell = this.board.getCell(newRow, newCol);
           if (cell && cell.type === 'live') {
             neighbors.total++;
-            neighbors[cell.playerName]++;
+            neighbors.byPlayer[cell.playerName]++;
           }
         }
       }
@@ -185,7 +194,11 @@ class ConwayGame {
   checkGameOver() {
     // Game ends if one player has no living cells or after max generations
     const deadPlayer = this.players.find(player => player.score === 0);
-    if (deadPlayer) {
+    const allDead = this.players.every(player => player.score === 0);
+    if (allDead) {
+      this.winner = 'tie';
+      console.log(`\nGame Over! It's a tie - both players have no living cells`);
+    } else if (deadPlayer) {
       this.winner = this.players.find(player => player.id !== deadPlayer.id).name;
       console.log(`\nGame Over! ${this.winner} wins - opponent has no living cells`);
     } else if (this.generation >= this.maxGenerations) {

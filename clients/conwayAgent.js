@@ -138,100 +138,37 @@ function handleYourTurn(message) {
  */
 function generateInitialCellPlacement() {
   const cellPositions = [];
-  const numOfRows = gameState.game.numOfRows;
+  const numOfRows = Math.max(gameState.game.numOfRows, 8);
   const numOfColumns = gameState.game.numOfColumns;
-  
+  const maxAttempts = 1000; // Set a reasonable retry limit
+  let attempts = 0;
+
   // Determine the valid column range based on which player we are
   const minCol = gameState.isFirstPlayer ? 0 : Math.floor(numOfColumns / 2);
   const maxCol = gameState.isFirstPlayer ? Math.floor(numOfColumns / 2) - 1 : numOfColumns - 1;
-  
+
+  // Calculate the maximum number of free cells
+  const maxFreeCells = (numOfRows * (maxCol - minCol + 1)) - cellPositions.length;
+  const cellsToPlace = Math.min(gameState.game.startingCells, maxFreeCells);
+
   // Simple strategy: Place cells in a glider pattern if possible, otherwise random
-  if (gameState.isFirstPlayer) {
-    // Left side player - place a glider moving right
-    if (numOfRows >= 5 && (maxCol - minCol) >= 5) {
-      // Place a glider in the top-left corner
-      cellPositions.push({ row: 1, column: 2 });
-      cellPositions.push({ row: 2, column: 3 });
-      cellPositions.push({ row: 3, column: 1 });
-      cellPositions.push({ row: 3, column: 2 });
-      cellPositions.push({ row: 3, column: 3 });
-      
-      // Place a glider in the middle-left
-      cellPositions.push({ row: Math.floor(numOfRows / 2) - 1, column: 2 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2), column: 3 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2) + 1, column: 1 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2) + 1, column: 2 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2) + 1, column: 3 });
-      
-      // Place a block pattern (stable)
-      cellPositions.push({ row: numOfRows - 4, column: 1 });
-      cellPositions.push({ row: numOfRows - 4, column: 2 });
-      cellPositions.push({ row: numOfRows - 3, column: 1 });
-      cellPositions.push({ row: numOfRows - 3, column: 2 });
-      
-      // Place a blinker pattern (oscillator)
-      cellPositions.push({ row: numOfRows - 7, column: 5 });
-      cellPositions.push({ row: numOfRows - 6, column: 5 });
-      cellPositions.push({ row: numOfRows - 5, column: 5 });
-      
-      // Fill remaining cells randomly
-      while (cellPositions.length < gameState.game.startingCells) {
-        const row = Math.floor(Math.random() * numOfRows);
-        const column = minCol + Math.floor(Math.random() * (maxCol - minCol + 1));
-        
-        // Check if this position is already used
-        if (!cellPositions.some(pos => pos.row === row && pos.column === column)) {
-          cellPositions.push({ row, column });
-        }
-      }
-    } else {
-      // Board is too small for patterns, place randomly
-      placeRandomCells(cellPositions, minCol, maxCol);
+  while (cellPositions.length < cellsToPlace && attempts < maxAttempts) {
+    const row = Math.floor(Math.random() * numOfRows);
+    const column = Math.floor(Math.random() * (maxCol - minCol + 1)) + minCol;
+
+    const position = { row, column };
+
+    if (!cellPositions.some(existingPos => existingPos.row === position.row && existingPos.column === position.column)) {
+      cellPositions.push(position);
     }
-  } else {
-    // Right side player - place a glider moving left
-    if (numOfRows >= 5 && (maxCol - minCol) >= 5) {
-      // Place a glider in the top-right corner
-      cellPositions.push({ row: 1, column: maxCol - 2 });
-      cellPositions.push({ row: 2, column: maxCol - 3 });
-      cellPositions.push({ row: 3, column: maxCol - 1 });
-      cellPositions.push({ row: 3, column: maxCol - 2 });
-      cellPositions.push({ row: 3, column: maxCol - 3 });
-      
-      // Place a glider in the middle-right
-      cellPositions.push({ row: Math.floor(numOfRows / 2) - 1, column: maxCol - 2 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2), column: maxCol - 3 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2) + 1, column: maxCol - 1 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2) + 1, column: maxCol - 2 });
-      cellPositions.push({ row: Math.floor(numOfRows / 2) + 1, column: maxCol - 3 });
-      
-      // Place a block pattern (stable)
-      cellPositions.push({ row: numOfRows - 4, column: maxCol - 1 });
-      cellPositions.push({ row: numOfRows - 4, column: maxCol - 2 });
-      cellPositions.push({ row: numOfRows - 3, column: maxCol - 1 });
-      cellPositions.push({ row: numOfRows - 3, column: maxCol - 2 });
-      
-      // Place a blinker pattern (oscillator)
-      cellPositions.push({ row: numOfRows - 7, column: maxCol - 5 });
-      cellPositions.push({ row: numOfRows - 6, column: maxCol - 5 });
-      cellPositions.push({ row: numOfRows - 5, column: maxCol - 5 });
-      
-      // Fill remaining cells randomly
-      while (cellPositions.length < gameState.game.startingCells) {
-        const row = Math.floor(Math.random() * numOfRows);
-        const column = minCol + Math.floor(Math.random() * (maxCol - minCol + 1));
-        
-        // Check if this position is already used
-        if (!cellPositions.some(pos => pos.row === row && pos.column === column)) {
-          cellPositions.push({ row, column });
-        }
-      }
-    } else {
-      // Board is too small for patterns, place randomly
-      placeRandomCells(cellPositions, minCol, maxCol);
-    }
+
+    attempts++;
   }
-  
+
+  if (attempts >= maxAttempts) {
+    console.warn('Reached maximum attempts to place cells. Some cells may not be placed.');
+  }
+
   return cellPositions;
 }
 

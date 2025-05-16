@@ -43,7 +43,7 @@ class ConwayGame {
   addPlayer(playerData) {
     // Enforce exactly two players
     if (this.players.length >= 2) {
-      console.log('Cannot add more players. Game is limited to exactly 2 players.');
+      throw new Error('Cannot add more players. Game is limited to exactly 2 players.');
       return false;
     }
     
@@ -307,7 +307,7 @@ class ConwayGame {
       this.winner = player2.name;
       console.log(`Game Over! Player ${this.winner} wins with more cells!`);
     } else {
-      this.winner = -1; // Draw
+      this.winner = null; // Draw
       console.log(`Game Over! Draw! Equal number of cells`);
     }
   }
