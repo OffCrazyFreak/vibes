@@ -1,4 +1,4 @@
-const gameTicksPerSecond = 20; // Adjust as needed
+const gameTicksPerSecond = 6; // Adjust as needed
 
 let socket; // WebSocket instance
 let socketConnectingInterval; // Interval for reconnection attempts
@@ -9,17 +9,18 @@ let dataList = [];
 let lastFrameTime = Date.now();
 
 // fetch data from ../gamestate.json into dataList
-fetch("../gamestate.json")
-  .then((response) => response.json())
-  .then((data) => {
-    dataList = data;
-    console.log("Data loaded:", dataList);
-    parseData(dataList);
-  })
-  .catch((error) => {
-    console.error("Failed to load game state:", error);
-    setConnectionStatus("connection_fail");
-  });
+// fetch("../gamestate.json")
+//   .then((response) => response.json())
+//   .then((data) => {
+//     dataList = data;
+//     console.log("Data loaded:", dataList);
+//     parseData(dataList);
+//   })
+//   .catch((error) => {
+//     console.error("Failed to load game state:", error);
+//     setConnectionStatus("connection_fail");
+//   });
+
 // ========================================
 // websockets
 /**
@@ -201,7 +202,6 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Start the game loop
 /**
  * Updates the UI and game state based on the provided game data.
  *
@@ -231,7 +231,7 @@ function parseData(data) {
         player.name;
 
       teamInfoContainerElems[index].querySelector(".team_cells").textContent =
-        "Cells: " + player.body.length;
+        "Cells: " + player.cells.length;
     });
   }
 

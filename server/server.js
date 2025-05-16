@@ -5,7 +5,7 @@ const WebSocket = require("ws");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 
-const { SnakeGame } = require("../logic/game");
+const { ConwayGame } = require("../logic/game");
 
 const util = require("./utility");
 
@@ -35,7 +35,7 @@ fs.readFile("./players.json", "utf8", (err, data) => {
   try {
     const allPlayers = JSON.parse(data);
     allPlayers.forEach((player) => playersMap.set(player.id, player));
-    game = new SnakeGame(); // Initialize SnakeGame
+    game = new ConwayGame(); // Initialize SnakeGame
   } catch (error) {
     console.error("Error parsing JSON:", error);
   }
@@ -167,7 +167,7 @@ function rejectConnection(ws, receivedId) {
  * @param {string} message - The raw message data sent by the client.
  */
 function handleMessage(ws, message) {
-  console.log(`Received message: ${message}`);
+  // console.log(`Received message: ${message}`);
 
   if (currentPlayers.length < 2) {
     ws.send(JSON.stringify({ message: "Waiting for players to connect" }));
@@ -215,13 +215,16 @@ function handleMessage(ws, message) {
 
   // Process moves function
   const processPendingMoves = () => {
-    console.log(
-      `Processing pending moves: ${JSON.stringify(
-        Array.from(pendingMoves.values())
-      )}`
-    );
-    // game.processMoves(Array.from(pendingMoves.values()));
+    // console.log(
+    //   `Processing pending moves: ${JSON.stringify(
+    //     Array.from(pendingMoves.values())
+    //   )}`
+    // );
+
+    game.processMoves(pendingMoves);
+
     pendingMoves.clear();
+
     // Send game state to all connections
     connections.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

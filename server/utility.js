@@ -8,10 +8,10 @@
  */
 function serializeGameState(game) {
   return {
-    map: game.board.map,
+    map: game.board,
     players: game.players.map((player) => ({
       name: player.name,
-      body: player.body,
+      cells: player.cells,
     })),
     winner: game.winner,
     generationCount: game.generationCount,

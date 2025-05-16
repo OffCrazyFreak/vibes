@@ -56,14 +56,15 @@ function updateGrid(data) {
   if (data.map) {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
-        // probably can be optimised using player.body instead of iterating over map
+        // probably can be optimised using player.cells instead of iterating over map
 
         const cell = document.getElementById(`cell-${i}-${j}`);
         cell.classList.remove("Uno", "Duo");
+
         if (data.map[i][j] !== null) {
-          if (data.map[i][j] === "Uno") {
+          if (data.map[i][j].playerName === "Uno") {
             cell.classList.add("player1");
-          } else if (data.map[i][j] === "Duo") {
+          } else if (data.map[i][j].playerName === "Duo") {
             cell.classList.add("player2");
           } else {
             cell.classList.add("unknown");
