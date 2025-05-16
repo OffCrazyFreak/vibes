@@ -1,6 +1,6 @@
 // Initialize grid on page load
 document.addEventListener("DOMContentLoaded", () => {
-  createGrid(50, 100);
+  createGrid(30, 80);
 });
 
 function createGrid(rows = 150, cols = 350) {

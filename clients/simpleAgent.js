@@ -4,8 +4,8 @@ const WebSocket = require("ws");
 const CONFIG = {
   defaultId: "k",
   wsUrl: "ws://localhost:3000",
-  gridRows: 25,
-  gridCols: 50,
+  gridRows: 30,
+  gridCols: 80,
   cellsPerTurn: 100,
 };
 

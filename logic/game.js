@@ -78,7 +78,10 @@ class ConwayGame {
    * Processes a game tick, applying Conway's Game of Life rules
    */
   processMoves(moves) {
-    if (this.generationCount % config.GENERATION_CYCLE === 0) {
+    if (
+      this.generationCount % config.GENERATION_CYCLE === 0 &&
+      this.generationCount <= config.GAME_MAX_MOVES / 2
+    ) {
       // Changed condition
       moves.forEach((move) => {
         this.placeCells(move.playerId, move.placements);
