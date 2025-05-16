@@ -162,9 +162,9 @@ class ConwayGame {
   }
 
   getDominantPlayer(neighbors) {
-    if (neighbors[this.players[0].name] > neighbors[this.players[1].name]) {
+    if (neighbors.byPlayer[this.players[0].name] > neighbors.byPlayer[this.players[1].name]) {
       return this.players[0];
-    } else if (neighbors[this.players[1].name] > neighbors[this.players[0].name]) {
+    } else if (neighbors.byPlayer[this.players[1].name] > neighbors.byPlayer[this.players[0].name]) {
       return this.players[1];
     }
     return null; // No dominant player

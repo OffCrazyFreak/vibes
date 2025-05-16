@@ -123,7 +123,7 @@ function toggleEndScreen(data) {
 
 function updateGenerationCount(generationCount) {
   document.querySelector(".generation_number").textContent = `Generation: ${
-    generationCount || "####"
+    generationCount === null ? "####" : generationCount
   }`;
 }
 
@@ -194,8 +194,7 @@ function parseData(data) {
       teamInfoContainerElems[index].querySelector(".team_name").textContent =
         player.name;
 
-      teamInfoContainerElems[index].querySelector(".team_cells").textContent =
-        "Cells: " + player.cells.length;
+      teamInfoContainerElems[index].querySelector(".team_cells").textContent = `Cells: ${player.cells.length}`;
     });
   }
 

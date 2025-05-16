@@ -33,11 +33,11 @@
 }
 
 .cell.player1 {
-  background-color: var(--player1-color);
+  background-color: var(--player1-color, #FF5733);
 }
 
 .cell.player2 {
-  background-color: var(--player2-color);
+  background-color: var(--player2-color, #33FF57);
 }
 
 .item.unknown {

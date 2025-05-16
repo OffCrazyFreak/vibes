@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   createGrid(50, 100);
 });
 
-function createGrid(rows = 150, cols = 350) {
+function createGrid(rows = 50, cols = 100) {
   const board = document.getElementById("gameBoard");
   board.style.gridTemplateColumns = `repeat(${cols}, 0.375rem)`;
   board.innerHTML = ""; // Clear existing grid
@@ -44,7 +44,7 @@ function updateGrid(data) {
         // probably can be optimised using player.cells instead of iterating over map
 
         const cell = document.getElementById(`cell-${i}-${j}`);
-        cell.classList.remove("Uno", "Duo");
+        cell.classList.remove("Uno", "Duo", "player1", "player2", "unknown");
         if (data.map[i][j] !== null) {
           if (data.map[i][j] === "Uno") {
             cell.classList.add("player1");

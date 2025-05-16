@@ -186,17 +186,15 @@ function handleMessage(ws, message) {
   }
 
   // 2. Check if placements is missing (but playerId is valid)
-  if (!move.placements) {
-    console.log(
-      `Received move with missing placements from ${move.playerId}. Setting placements to 'invalid'.`
-    );
+  if (!move.placements || (Array.isArray(move.placements) && move.placements.length === 0)) {
+    console.log(`Received move with missing or invalid placements from ${move.playerId}. Setting placements to null.`);
     ws.send(
       JSON.stringify({
-        warning: "Missing placements in move. Treating as invalid.",
+        warning: "Missing or invalid placements in move. Treating as invalid.",
       })
     );
-    // Set placements to invalid so game logic can handle it (e.g., apply penalty)
-    move.placements = "invalid";
+    // Set placements to null so game logic can handle it (e.g., apply penalty)
+    move.placements = null;
   }
 
   // Store the move (it's either valid or has placements set to 'invalid')
@@ -248,6 +246,7 @@ function handleMessage(ws, message) {
             pendingMoves.set(player.id, {
               playerId: player.id,
               placements: "timeout",
+              isTimeout: true
             });
           }
         });
