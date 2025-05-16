@@ -120,7 +120,7 @@ function toggleEndScreen(data) {
 
 function updateMoveCount(generationCount) {
   document.querySelector(".generation_number").textContent =
-    "Generation: " + (generationCount || "####");
+    `Generation: ${generationCount || "####"}`;
 }
 
 function setConnectionStatus(status) {
