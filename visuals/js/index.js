@@ -41,7 +41,7 @@ function connectWebSocket() {
     dataList = [];
     lastFrameTime = Date.now();
 
-    updateMoveCount(generationCount); // Update UI with the reset move counter
+    updateGenerationCount(generationCount); // Update UI with the reset move counter
     toggleEndScreen(null); // Hide the winner upon reconnection
 
     if (socketConnectingInterval) {
@@ -119,8 +119,9 @@ function toggleEndScreen(data) {
 }
 
 function updateGenerationCount(generationCount) {
-  document.querySelector(".generation_number").textContent =
-    `Generation: ${generationCount || "####"}`;
+  document.querySelector(".generation_number").textContent = `Generation: ${
+    generationCount || "####"
+  }`;
 }
 
 function setConnectionStatus(status) {
