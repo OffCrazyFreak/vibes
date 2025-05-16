@@ -145,8 +145,9 @@ class ConwayGame {
     // Update the board and player cell tracking
     this.board = nextBoard;
 
+    this.updatePlayerCells();
+
     if (this.generationCount % config.GENERATION_CYCLE === 0) {
-      this.updatePlayerCells();
       this.checkGameOver();
     }
   }

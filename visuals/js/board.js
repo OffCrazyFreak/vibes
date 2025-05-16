@@ -44,7 +44,7 @@ function updateGrid(data) {
         // probably can be optimised using player.cells instead of iterating over map
 
         const cell = document.getElementById(`cell-${i}-${j}`);
-        cell.classList.remove("Uno", "Duo");
+        cell.classList.remove("player1", "player2");
 
         if (data.map[i][j] !== null) {
           if (data.map[i][j].playerName === "Uno") {
