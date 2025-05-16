@@ -4,9 +4,9 @@ const WebSocket = require("ws");
 const CONFIG = {
   defaultId: "k",
   wsUrl: "ws://localhost:3000",
-  gridRows: 15,
-  gridCols: 30,
-  cellsPerTurn: 30,
+  gridRows: 25,
+  gridCols: 50,
+  cellsPerTurn: 100,
 };
 
 // Get the agentId from command line or use default

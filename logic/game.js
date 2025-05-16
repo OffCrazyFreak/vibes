@@ -78,82 +78,77 @@ class ConwayGame {
    * Processes a game tick, applying Conway's Game of Life rules
    */
   processMoves(moves) {
-    moves.forEach((move) => {
-      const playerId = move.playerId;
-      const placements = move.placements;
+    if (this.generationCount % config.GENERATION_CYCLE === 0) {
+      // Changed condition
+      moves.forEach((move) => {
+        this.placeCells(move.playerId, move.placements);
+      });
+    }
 
-      if (this.generationCount % 10 === 0) {
-        // Changed condition
-        this.placeCells(playerId, placements);
-      }
+    this.generationCount++;
 
-      this.generationCount++;
+    // Create a copy of the current board state
+    const nextBoard = Array.from({ length: this.numOfRows }, () =>
+      Array.from({ length: this.numOfColumns }, () => null)
+    );
 
-      // Create a copy of the current board state
-      const nextBoard = Array.from({ length: this.numOfRows }, () =>
-        Array.from({ length: this.numOfColumns }, () => null)
-      );
+    // Apply Conway's rules to determine the next state
+    for (let row = 0; row < this.numOfRows; row++) {
+      for (let col = 0; col < this.numOfColumns; col++) {
+        const neighbors = this.countNeighbors(row, col);
+        const currentCell = this.board[row][col];
 
-      // Apply Conway's rules to determine the next state
-      for (let row = 0; row < this.numOfRows; row++) {
-        for (let col = 0; col < this.numOfColumns; col++) {
-          const neighbors = this.countNeighbors(row, col);
-          const currentCell = this.board[row][col];
+        // Rule 1: Any live cell with fewer than two live neighbors dies (underpopulation)
+        // Rule 2: Any live cell with two or three live neighbors lives on
+        // Rule 3: Any live cell with more than three live neighbors dies (overpopulation)
+        if (currentCell !== null) {
+          if (neighbors.total === 2 || neighbors.total === 3) {
+            // Cell survives
+            nextBoard[row][col] = currentCell;
+          }
+        }
+        // Rule 4: Any dead cell with exactly three live neighbors becomes a live cell (reproduction)
+        else if (neighbors.total === 3) {
+          // Determine which player gets the new cell based on majority or random on tie
+          let newCellPlayerId = null;
+          let maxCount = 0;
+          let tiedPlayers = [];
 
-          // Rule 1: Any live cell with fewer than two live neighbors dies (underpopulation)
-          // Rule 2: Any live cell with two or three live neighbors lives on
-          // Rule 3: Any live cell with more than three live neighbors dies (overpopulation)
-          if (currentCell !== null) {
-            if (neighbors.total === 2 || neighbors.total === 3) {
-              // Cell survives
-              nextBoard[row][col] = currentCell;
+          for (const [playerId, count] of Object.entries(neighbors.byPlayer)) {
+            if (count > maxCount) {
+              maxCount = count;
+              newCellPlayerId = playerId;
+              tiedPlayers = [playerId];
+            } else if (count === maxCount) {
+              tiedPlayers.push(playerId);
             }
           }
-          // Rule 4: Any dead cell with exactly three live neighbors becomes a live cell (reproduction)
-          else if (neighbors.total === 3) {
-            // Determine which player gets the new cell based on majority or random on tie
-            let newCellPlayerId = null;
-            let maxCount = 0;
-            let tiedPlayers = [];
 
-            for (const [playerId, count] of Object.entries(
-              neighbors.byPlayer
-            )) {
-              if (count > maxCount) {
-                maxCount = count;
-                newCellPlayerId = playerId;
-                tiedPlayers = [playerId];
-              } else if (count === maxCount) {
-                tiedPlayers.push(playerId);
-              }
-            }
+          // If there's a tie, randomly select one of the tied players
+          if (tiedPlayers.length > 1) {
+            const randomIndex = Math.floor(Math.random() * tiedPlayers.length);
+            newCellPlayerId = tiedPlayers[randomIndex];
+          }
 
-            // If there's a tie, randomly select one of the tied players
-            if (tiedPlayers.length > 1) {
-              const randomIndex = Math.floor(
-                Math.random() * tiedPlayers.length
-              );
-              newCellPlayerId = tiedPlayers[randomIndex];
-            }
-
-            if (newCellPlayerId) {
-              const player = this.players.find((p) => p.id === newCellPlayerId);
-              nextBoard[row][col] = {
-                type: "cell",
-                playerId: newCellPlayerId,
-                playerName: player.name,
-              };
-            }
+          if (newCellPlayerId) {
+            const player = this.players.find((p) => p.id === newCellPlayerId);
+            nextBoard[row][col] = {
+              type: "cell",
+              playerId: newCellPlayerId,
+              playerName: player.name,
+            };
           }
         }
       }
+    }
 
-      // Update the board and player cell tracking
-      this.board = nextBoard;
+    // Update the board and player cell tracking
+    this.board = nextBoard;
 
-      // Check if game is over
+    if (this.generationCount % config.GENERATION_CYCLE === 0) {
+      this.updatePlayerCells();
       this.checkGameOver();
-    });
+    }
   }
 
   /**
@@ -237,6 +232,7 @@ class ConwayGame {
     }
 
     // Game is over if move limit is reached
+    console.log(config.GAME_MAX_MOVES);
     if (this.generationCount >= config.GAME_MAX_MOVES) {
       this.determineWinnerByCellCount();
       return true;
