@@ -3,7 +3,7 @@ function serializeGameState(game) {
     map: game.board.map,
     players: game.players.map((player) => ({
       name: player.name,
-      body: player.body,
+      cells: player.cells,
     })),
     winner: game.winner,
     generationCount: game.generationCount,

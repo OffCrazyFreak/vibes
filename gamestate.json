@@ -8090,7 +8090,7 @@
   "players": [
     {
       "name": "Uno",
-      "body": [
+      "cells": [
         { "row": 3, "column": 6 },
         { "row": 8, "column": 15 },
         { "row": 12, "column": 25 },
@@ -8105,7 +8105,7 @@
     },
     {
       "name": "Duo",
-      "body": [
+      "cells": [
         { "row": 48, "column": 50 },
         { "row": 42, "column": 35 },
         { "row": 38, "column": 20 },

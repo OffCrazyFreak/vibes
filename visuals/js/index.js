@@ -195,7 +195,7 @@ function parseData(data) {
         player.name;
 
       teamInfoContainerElems[index].querySelector(".team_cells").textContent =
-        "Cells: " + player.body.length;
+        "Cells: " + player.cells.length;
     });
   }
 

@@ -41,7 +41,7 @@ function updateGrid(data) {
   if (data.map) {
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
-        // probably can be optimised using player.body instead of iterating over map
+        // probably can be optimised using player.cells instead of iterating over map
 
         const cell = document.getElementById(`cell-${i}-${j}`);
         cell.classList.remove("Uno", "Duo");
