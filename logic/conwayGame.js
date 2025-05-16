@@ -2,7 +2,7 @@ const config = require("./gameConfig");
 
 /**
  * Conway's Game of Life PVP implementation
- * Two players each start with 20 cells on their half of the board
+ * Two players each start with 50 cells on their half of the board
  * After initial placement, cells evolve according to Conway's rules
  */
 class ConwayGame {
@@ -22,8 +22,8 @@ class ConwayGame {
     this.players = [];
     this.winner = null;
     
-    // Each player starts with 20 cells to place
-    this.startingCells = 20;
+    // Each player starts with 50 cells to place
+    this.startingCells = 50;
     
     // Track which cells belong to which player
     this.playerCells = {};
