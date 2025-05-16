@@ -1,4 +1,4 @@
-const gameTicksPerSecond = 1; // Adjust as needed
+const gameTicksPerSecond = 4; // Adjust as needed
 
 let socket; // WebSocket instance
 let socketConnectingInterval; // Interval for reconnection attempts

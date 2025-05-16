@@ -21,14 +21,6 @@ class ConwayGame {
     this.generationCount = 0;
     this.players = [];
     this.winner = null;
-
-    // Each player starts with 50 cells to place
-    this.startingCells = 30;
-
-    // Track board states for stability detection
-    this.previousStates = [];
-    this.stableGenerationCount = 0;
-    this.STABILITY_THRESHOLD = 3; // Number of identical generations to consider stable
   }
 
   /**
@@ -90,14 +82,12 @@ class ConwayGame {
       const playerId = move.playerId;
       const placements = move.placements;
 
-      this.placeCells(playerId, placements);
+      if (this.generationCount % 10 === 0) {
+        // Changed condition
+        this.placeCells(playerId, placements);
+      }
 
       this.generationCount++;
-
-      if (this.generationCount === 40) {
-        console.log(this.board);
-        this.winner = "40 gens";
-      }
 
       // Create a copy of the current board state
       const nextBoard = Array.from({ length: this.numOfRows }, () =>
@@ -260,8 +250,8 @@ class ConwayGame {
    */
   determineWinnerByCellCount() {
     const [player1, player2] = this.players;
-    const player1CellCount = this.players[player1.id].cells.length;
-    const player2CellCount = this.players[player2.id].cells.length;
+    const player1CellCount = player1.cells.length; // Access cells directly from player object
+    const player2CellCount = player2.cells.length; // Access cells directly from player object
 
     if (player1CellCount > player2CellCount) {
       this.winner = player1.name;
@@ -270,7 +260,7 @@ class ConwayGame {
       this.winner = player2.name;
       console.log(`Game Over! Player ${this.winner} wins with more cells!`);
     } else {
-      this.winner = null; // Draw
+      this.winner = -1; // Draw
       console.log(`Game Over! Draw! Equal number of cells`);
     }
   }
